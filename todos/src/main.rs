@@ -1,24 +1,24 @@
+use serde::{Serialize, Deserialize};
 mod input;
 mod command_line;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 enum Status {
     InProgres,
     Done,
-    Nil
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Todo {
     text: String,
-    status: Status,
+    status: Option<Status>,
 }
 
 impl Todo {
     fn new(text: &str) -> Todo {
         Todo{
             text: String::from(text),
-            status: Status::Nil,
+            status: None,
         }
     }
 }
@@ -40,7 +40,7 @@ fn main() {
             let todo_idx : usize = todo_idx.parse().unwrap();
             if let Some(todo) = todos.get_mut(todo_idx) {
                 let prev_status = todo.status;
-                todo.status = Status::Done;
+                todo.status = Some(Status::Done);
                 println!("{} -> (text={} previous={:?} -> {:?})", todo_idx, todo.text, prev_status, todo.status);
             }
         } else if let Command::InProgres = command {
@@ -49,7 +49,7 @@ fn main() {
             let todo_idx = todo_idx.parse::<usize>().unwrap();
             if let Some(todo) = todos.get_mut(todo_idx) {
                 let prev_status = todo.status;
-                todo.status = Status::InProgres;
+                todo.status = Some(Status::InProgres);
                 println!("{} -> (text={} previous={:?} -> {:?})", todo_idx, todo.text, prev_status, todo.status);
             }
         } else if let Command::Add = command {
@@ -58,6 +58,12 @@ fn main() {
             if !input.is_empty() {
                 todos.push(Todo::new(input));
             }
+        } else if let Command::Save = command {
+            let serialized_todos = serde_json::to_string(&todos);
+            match serialized_todos {
+                Ok(json) => { println!("{}", json);},
+                _ => { println!("Error..."); }
+            };
         }
     }
 }
