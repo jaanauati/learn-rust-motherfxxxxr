@@ -10,6 +10,11 @@ async fn two () {
     println!("two...");
 }
 
+async fn task (n: i32) {
+    sleep(Duration::from_millis(100)).await;
+    print!("{} ", n);
+}
+
 #[tokio::main]
 async fn main() {
     one().await;
@@ -17,13 +22,13 @@ async fn main() {
     sleep(Duration::from_secs(1)).await;
     let mut handles = vec!();
     let mut i = 0;
-    while i <= 600 {
-        handles.push(spawn(one()));
-        handles.push(spawn(two()));
+    while i <= 1000 {
+        handles.push(spawn(task(i)));
         i += 1;
     };
     // now we await for all the concurrent tasks to finish.
     for handle in handles {
         let _ = handle.await;
     }
+    println!("");
 }
