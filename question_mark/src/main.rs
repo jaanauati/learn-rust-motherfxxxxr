@@ -1,3 +1,5 @@
+use std::fmt;
+
 struct Bar {
     baz: String,   
 }
@@ -43,11 +45,41 @@ fn parse_and_sum () -> Result<i32, ParseIntError> {
     return Ok(x + y);
 }
 
+#[derive(Debug)]
+struct EmptyVec;
+
+impl std::fmt::Display for EmptyVec {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "invalid first item to double")
+    }
+}
+
+impl std::error::Error for EmptyVec {}
+
+
+fn different_errors(n: &str, v:  Vec<i32>) -> std::result::Result<i32, Box<dyn std::error::Error>> {
+    let first = n.parse::<i32>()?;
+    let second: &i32 = v.first().ok_or(EmptyVec)?;
+
+    return Ok(first + second);
+}
+
 fn main() {
     chaining_fail();
     chaining_ok();
     println!("try_to_parse: {:?}", try_to_parse());
     println!("parse_and_sum: {:?}", parse_and_sum().unwrap());
+    
+    let v = vec![11];
+    match different_errors("10", v) {
+        Ok(result) => { println!("Result: {}", result)},
+        Err(e) => { println!("Error found: {:?}", e); },
+    };
+    let v = vec![];
+    match different_errors("10", v) {
+        Ok(result) => { println!("Result: {}", result)},
+        Err(e) => { println!("Error found: {:?}", e); },
+    };
 }
 // output:
 // baz "baaaazzz!"
