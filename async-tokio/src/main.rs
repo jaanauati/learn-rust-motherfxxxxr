@@ -1,4 +1,4 @@
-use tokio::{spawn, task::{JoinSet}, time::{Duration, sleep}, join};
+use tokio::{spawn, select, task::{JoinSet}, time::{Duration, sleep}, join};
 
 async fn one() {
     sleep(Duration::from_millis(100)).await;
@@ -54,6 +54,33 @@ async fn example_four() {
     println!("");
 }
 
+
+async fn select_example() {
+    select! {
+        _ = async_fn(1) => { println!("async_fn 1 completed first") },
+        _ = async_fn(2) => { println!("async_fn 2 completed first") },
+    }
+}
+
+async fn select_example_two() {
+    let mut fut1_done = false;
+    let mut fut2_done = false;
+    // we add a little conditional that guanranties that the loop finishes
+    // when both of the functions have been executed.
+    while !(fut1_done && fut2_done) {
+        select! {
+            _ = async_fn(1), if !fut1_done => {
+                println!("async_fn 1 completed first");
+                fut1_done = true; 
+            },
+            _ = async_fn(2), if !fut2_done => {
+                println!("async_fn 2 completed first");
+                fut2_done = true;
+            },
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     println!("** Example 1: use await to evaluate futures");
@@ -65,4 +92,12 @@ async fn main() {
     example_three().await;
     println!("** Example 4: execute couple concurrently (and quickly), using tokio::join");
     example_four().await;
+    println!("****");
+    println!("****");
+    println!("****");
+    println!("SELECT");
+    println!("** Example 5: use select to execute one of two tasks");
+    select_example().await;
+    println!("** Example 6: use select to wait for completion of the two tasks.");
+    select_example_two().await;
 }
