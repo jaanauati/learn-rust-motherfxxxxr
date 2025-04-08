@@ -1,6 +1,6 @@
 use inquire::{Select, InquireError};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Command {
     List,
     Add,
@@ -10,18 +10,20 @@ pub enum Command {
     Nil,
 }
 
-pub fn get_command() -> Command {
-    let options: Vec<&str> = vec!["List", "Add", "Done", "Progress", "Save"];
-    let ans: Result<&str, InquireError> = Select::new("\nSelect command: ", options).prompt();
-
-    let cmd = | result: &str| match result.to_lowercase().as_str() {
+pub fn cmd(input: &str) -> Command {
+    match input.to_lowercase().as_str() {
         "list" => Command::List,
         "done" => Command::Done,
         "add" => Command::Add,
         "progress" => Command::InProgres,
         "save" => Command::Save,
         _ => Command::Nil,
-    };
+    }
+}
+
+pub fn get_command() -> Command {
+    let options: Vec<&str> = vec!["List", "Add", "Done", "Progress", "Save"];
+    let ans: Result<&str, InquireError> = Select::new("\nSelect command: ", options).prompt();
 
     let result = match ans {
         Ok(choice) => cmd(choice),
@@ -29,3 +31,7 @@ pub fn get_command() -> Command {
     };
     return result;
 }
+
+#[cfg(test)]
+mod tests;
+
