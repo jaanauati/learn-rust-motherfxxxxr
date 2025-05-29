@@ -8,3 +8,8 @@
 1. Bitcoin balance (api call): [example](bitcoin-balance/src/main.rs)
 1. Linked List: [example](./linked-list.rs)
 1. gpui / image: [example](image/src/main.rs)
+1. Proof of work: [example](proof-of-work/src/main.rs)
+1. Generics:
+1. Graphql: 
+1. WASM / Web: 
+1. Polkadot:
